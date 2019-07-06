@@ -114,26 +114,42 @@ class Utility:
 		"""
 		
 		# Attempt to execute the child process
-		proc = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=cwd, shell=shell, universal_newlines=True)
-		(stdout, stderr) = proc.communicate(input)
+		# stderr is redirected to stdout
+		p = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=None, shell=False, universal_newlines=True)
+		if input is not None: 
+			p.stdin.write(input)
+
+		lines = []
+		# Propagate output to console
+		for line in p.stdout:
+			# newline is already part of line
+			print(line, end='')
+			lines.append(line)
 		
+		stdout = ''.join(lines)
+		p.wait()
+
 		# If the child process failed and we were asked to raise an exception, do so
-		if raiseOnError == True and proc.returncode != 0:
+		if raiseOnError == True and p.returncode != 0:
 			raise Exception(
 				'child process ' + str(command) +
-				' failed with exit code ' + str(proc.returncode) +
-				'\nstdout: "' + stdout + '"' +
-				'\nstderr: "' + stderr + '"'
-			)
+				' failed with exit code ' + str(p.returncode) +
+				'\nstdout: "' + stdout + "'")
 		
-		return CommandOutput(proc.returncode, stdout, stderr)
+		return CommandOutput(p.returncode, stdout, stdout)
 	
 	@staticmethod
 	def run(command, cwd=None, shell=False, raiseOnError=False):
 		"""
 		Executes a child process and waits for it to complete
 		"""
-		returncode = subprocess.call(command, cwd=cwd, shell=shell)
-		if raiseOnError == True and returncode != 0:
-			raise Exception('child process ' + str(command) + ' failed with exit code ' + str(returncode))
-		return returncode
+		# stderr is redirected to stdout
+		p = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=None, shell=False, universal_newlines=True)
+		for line in p.stdout:
+			# newline is already part of line
+			print(line, end='')
+		p.wait()
+
+		if raiseOnError == True and p.returncode != 0:
+			raise Exception('child process ' + str(command) + ' failed with exit code ' + str(p.returncode))
+		return p.returncode

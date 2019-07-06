@@ -531,10 +531,6 @@ class UnrealManagerBase(object):
 			Utility.printStderr('Running automation tests...')
 			logOutput = self.runAutomationCommands(projectFile, command, extraArgs, capture=True)
 			
-			# Propagate the log output
-			print(logOutput.stdout)
-			print(logOutput.stderr)
-			
 			# Detect abnormal exit conditions (those not triggered by `automation quit`)
 			if 'PlatformMisc::RequestExit(' not in logOutput.stdout:
 				sys.exit(1)

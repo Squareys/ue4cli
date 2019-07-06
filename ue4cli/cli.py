@@ -193,6 +193,18 @@ def displayHelp():
 				print(commandStr)
 		print()
 
+# API to other python scripts
+def ue4cli_command(command, args):
+	# Create the Unreal manager instance for the current platform
+	manager = UnrealManagerFactory.create()
+	
+	# If the specified command is supported, invoke it
+	if command in SUPPORTED_COMMANDS:
+		SUPPORTED_COMMANDS[command]['action'](manager, args)
+	else:
+		raise UnrealManagerException('unrecognised command "' + command + '"')
+
+
 def main():
 	try:
 		
@@ -204,18 +216,11 @@ def main():
 				SUPPORTED_COMMANDS[command] = details
 				COMMAND_GROUPINGS[-1]['commands'].append(command)
 		
-		# Create the Unreal manager instance for the current platform
-		manager = UnrealManagerFactory.create()
-		
 		# Extract the specified command and any trailing arguments
 		command = 'help' if len(sys.argv) < 2 else sys.argv[1].strip('-')
 		args = sys.argv[2:]
 		
-		# If the specified command is supported, invoke it
-		if command in SUPPORTED_COMMANDS:
-			SUPPORTED_COMMANDS[command]['action'](manager, args)
-		else:
-			raise UnrealManagerException('unrecognised command "' + command + '"')
+		ue4cli_command(command, args)
 		
 	except UnrealManagerException as e:
 		print('Error: ' + str(e))
