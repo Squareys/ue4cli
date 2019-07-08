@@ -115,7 +115,9 @@ class Utility:
 		
 		# Attempt to execute the child process
 		# stderr is redirected to stdout
-		p = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=None, shell=False, universal_newlines=True)
+		p = subprocess.Popen(command, stdin=subprocess.PIPE,
+			stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+			cwd=None, shell=False, universal_newlines=True, encoding='utf-8')
 		if input is not None: 
 			p.stdin.write(input)
 
@@ -144,7 +146,7 @@ class Utility:
 		Executes a child process and waits for it to complete
 		"""
 		# stderr is redirected to stdout
-		p = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=None, shell=False, universal_newlines=True)
+		p = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=None, shell=False, universal_newlines=True, encoding='utf-8')
 		for line in p.stdout:
 			# newline is already part of line
 			print(line, end='')
